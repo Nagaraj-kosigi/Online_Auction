@@ -1,0 +1,45 @@
+{% extends 'auctions/base.html' %}
+{% load custom_filters %}
+
+{% block title %}Reschedule Bid - Online Auction{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Reschedule Bid</h2>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>Auction Details</h5>
+                        <p><strong>Title:</strong> <a href="{% url 'auction_detail' auction_id=auction.id %}">{{ auction.title }}</a></p>
+                        <p><strong>Current Price:</strong> {{ auction.current_price|rupee }}</p>
+                        <p><strong>Your Bid Amount:</strong> {{ bid.amount|rupee }}</p>
+                        <p><strong>Original Bid Time:</strong> {{ bid.bid_time|date:"d M Y, h:i A" }}</p>
+                        <p><strong>Auction Ends:</strong> {{ auction.end_date|date:"d M Y, h:i A" }}</p>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="scheduled_time" class="form-label">Reschedule For:</label>
+                            <input type="datetime-local" class="form-control" id="scheduled_time" name="scheduled_time" 
+                                   min="{{ min_date }}" max="{{ max_date }}" required>
+                            <div class="form-text">
+                                Select a time between now and the auction end time.
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'my_bids' %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Reschedule Bid</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

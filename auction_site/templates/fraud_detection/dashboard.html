@@ -1,0 +1,151 @@
+{% extends 'auctions/base.html' %}
+
+{% block title %}Fraud Detection Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Fraud Detection Dashboard</h1>
+    
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Total Reports</h5>
+                    <p class="card-text display-4">{{ total_reports }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Reports</h5>
+                    <p class="card-text display-4">{{ pending_reports }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-danger">
+                <div class="card-body">
+                    <h5 class="card-title">Confirmed Frauds</h5>
+                    <p class="card-text display-4">{{ confirmed_frauds }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">High Risk Auctions</h5>
+                    <form method="post" action="{% url 'fraud_detection:scan_auctions' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">Scan All Auctions</button>
+                    </form>
+                </div>
+                <div class="card-body">
+                    {% if high_risk_auctions %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Auction</th>
+                                        <th>Seller</th>
+                                        <th>Risk Score</th>
+                                        <th>Risk Level</th>
+                                        <th>Reviewed</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for risk in high_risk_auctions %}
+                                        <tr>
+                                            <td><a href="{% url 'auction_detail' auction_id=risk.auction.id %}">{{ risk.auction.title }}</a></td>
+                                            <td>{{ risk.auction.created_by.username }}</td>
+                                            <td>{{ risk.score|floatformat:2 }}</td>
+                                            <td>
+                                                <span class="badge bg-danger">{{ risk.risk_level }}</span>
+                                            </td>
+                                            <td>
+                                                {% if risk.admin_reviewed %}
+                                                    <span class="badge bg-success">Yes</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">No</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'auction_detail' auction_id=risk.auction.id %}" class="btn btn-sm btn-primary">View</a>
+                                                <a href="{% url 'admin:fraud_detection_fraudriskscore_change' risk.id %}" class="btn btn-sm btn-warning">Review</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            No high-risk auctions detected.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Fraud Reports</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_reports %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Auction</th>
+                                        <th>Reported By</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for report in recent_reports %}
+                                        <tr>
+                                            <td>{{ report.id }}</td>
+                                            <td><a href="{% url 'auction_detail' auction_id=report.auction.id %}">{{ report.auction.title }}</a></td>
+                                            <td>{{ report.reported_by.username }}</td>
+                                            <td>
+                                                {% if report.status == 'pending' %}
+                                                    <span class="badge bg-warning">Pending</span>
+                                                {% elif report.status == 'investigating' %}
+                                                    <span class="badge bg-info">Investigating</span>
+                                                {% elif report.status == 'confirmed' %}
+                                                    <span class="badge bg-danger">Confirmed</span>
+                                                {% elif report.status == 'dismissed' %}
+                                                    <span class="badge bg-secondary">Dismissed</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ report.created_at|date:"d M Y, h:i A" }}</td>
+                                            <td>
+                                                <a href="{% url 'admin:fraud_detection_fraudreport_change' report.id %}" class="btn btn-sm btn-primary">Review</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            No fraud reports yet.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

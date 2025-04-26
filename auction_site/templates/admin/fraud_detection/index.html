@@ -1,0 +1,150 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+    .app-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+    
+    .app-card {
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .app-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .app-card-header {
+        padding: 15px 20px;
+        background-color: #0d6efd;
+        color: white;
+    }
+    
+    .app-card-header h2 {
+        margin: 0;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .app-card-header h2 i {
+        margin-right: 10px;
+        font-size: 1.5rem;
+    }
+    
+    .app-card-body {
+        padding: 20px;
+        background-color: white;
+    }
+    
+    .model-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .model-list li {
+        margin-bottom: 10px;
+    }
+    
+    .model-list li:last-child {
+        margin-bottom: 0;
+    }
+    
+    .model-link {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 15px;
+        border-radius: 5px;
+        background-color: #f8f9fa;
+        color: #212529;
+        text-decoration: none;
+        transition: background-color 0.2s ease;
+    }
+    
+    .model-link:hover {
+        background-color: #e9ecef;
+    }
+    
+    .model-link i {
+        color: #6c757d;
+    }
+    
+    .dashboard-link {
+        display: block;
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #0d6efd;
+        color: white;
+        text-align: center;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: background-color 0.2s ease;
+    }
+    
+    .dashboard-link:hover {
+        background-color: #0b5ed7;
+    }
+    
+    .dashboard-link i {
+        margin-right: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <a href="{% url 'admin:fraud_dashboard' %}" class="dashboard-link">
+        <i class="bi bi-speedometer2"></i> Go to Fraud Detection Dashboard
+    </a>
+    
+    <div class="app-list">
+        {% for app in app_list %}
+        <div class="app-card">
+            <div class="app-card-header">
+                <h2>
+                    {% if app.app_label == 'fraud_detection' %}
+                    <i class="bi bi-shield-exclamation"></i>
+                    {% elif app.app_label == 'auctions' %}
+                    <i class="bi bi-hammer"></i>
+                    {% else %}
+                    <i class="bi bi-box"></i>
+                    {% endif %}
+                    {{ app.name }}
+                </h2>
+            </div>
+            <div class="app-card-body">
+                <ul class="model-list">
+                    {% for model in app.models %}
+                    <li>
+                        {% if model.admin_url %}
+                        <a href="{{ model.admin_url }}" class="model-link">
+                            {{ model.name }}
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                        {% else %}
+                        <span class="model-link">
+                            {{ model.name }}
+                        </span>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

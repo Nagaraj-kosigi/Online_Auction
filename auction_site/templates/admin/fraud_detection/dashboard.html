@@ -1,0 +1,524 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+    :root {
+        --primary-color: #0d6efd;
+        --secondary-color: #6c757d;
+        --success-color: #198754;
+        --info-color: #0dcaf0;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+        --text-color: #f8f9fa;
+        --background-color: #212529;
+        --card-bg: #2c3034;
+        --border-color: #495057;
+    }
+
+    body {
+        background-color: var(--background-color);
+        color: var(--text-color);
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--text-color);
+    }
+
+    p {
+        color: var(--text-color);
+    }
+
+    a {
+        color: var(--primary-color);
+    }
+
+    a:hover {
+        color: #0b5ed7;
+    }
+
+    .dashboard-container {
+        padding: 20px;
+    }
+
+    .stats-card {
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        color: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .stats-card h3 {
+        margin-top: 0;
+        font-size: 1.2rem;
+        font-weight: 500;
+    }
+
+    .stats-card .number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 10px 0;
+    }
+
+    .stats-card .icon {
+        font-size: 2rem;
+        opacity: 0.8;
+    }
+
+    .primary-card {
+        background-color: var(--primary-color);
+    }
+
+    .warning-card {
+        background-color: var(--warning-color);
+        color: #212529;
+    }
+
+    .danger-card {
+        background-color: var(--danger-color);
+    }
+
+    .success-card {
+        background-color: var(--success-color);
+    }
+
+    .info-card {
+        background-color: var(--info-color);
+        color: #212529;
+    }
+
+    .secondary-card {
+        background-color: var(--secondary-color);
+    }
+
+    .dashboard-card {
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        margin-bottom: 20px;
+        overflow: hidden;
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+    }
+
+    .dashboard-card-header {
+        padding: 15px 20px;
+        border-bottom: 1px solid var(--border-color);
+        background-color: rgba(0, 0, 0, 0.2);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--text-color);
+    }
+
+    .dashboard-card-header h3 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: var(--text-color);
+    }
+
+    .dashboard-card-body {
+        padding: 20px;
+        background-color: var(--card-bg);
+        color: var(--text-color);
+    }
+
+    .dashboard-table {
+        width: 100%;
+        border-collapse: collapse;
+        color: var(--text-color);
+    }
+
+    .dashboard-table th,
+    .dashboard-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .dashboard-table th {
+        background-color: rgba(0, 0, 0, 0.2);
+        font-weight: 500;
+        color: var(--text-color);
+    }
+
+    .dashboard-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .dashboard-table tr:hover td {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.35em 0.65em;
+        font-size: 0.75em;
+        font-weight: 700;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 0.25rem;
+    }
+
+    .badge-primary {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .badge-warning {
+        background-color: var(--warning-color);
+        color: #212529;
+    }
+
+    .badge-danger {
+        background-color: var(--danger-color);
+        color: white;
+    }
+
+    .badge-success {
+        background-color: var(--success-color);
+        color: white;
+    }
+
+    .badge-secondary {
+        background-color: var(--secondary-color);
+        color: white;
+    }
+
+    .btn {
+        display: inline-block;
+        font-weight: 400;
+        line-height: 1.5;
+        color: var(--text-color);
+        text-align: center;
+        text-decoration: none;
+        vertical-align: middle;
+        cursor: pointer;
+        user-select: none;
+        background-color: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border-color);
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        border-radius: 0.25rem;
+        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    .btn-primary {
+        color: #fff;
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    .btn-primary:hover {
+        color: #fff;
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        border-radius: 0.2rem;
+    }
+
+    .chart-container {
+        height: 300px;
+        position: relative;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 20px;
+    }
+
+    .col-3 {
+        grid-column: span 3;
+    }
+
+    .col-4 {
+        grid-column: span 4;
+    }
+
+    .col-6 {
+        grid-column: span 6;
+    }
+
+    .col-8 {
+        grid-column: span 8;
+    }
+
+    .col-12 {
+        grid-column: span 12;
+    }
+
+    @media (max-width: 992px) {
+        .col-3, .col-4, .col-6, .col-8 {
+            grid-column: span 12;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>Fraud Detection Dashboard</h1>
+
+    <div class="grid">
+        <!-- Statistics Cards -->
+        <div class="col-3">
+            <div class="stats-card primary-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3>Total Reports</h3>
+                        <div class="number">{{ total_reports }}</div>
+                    </div>
+                    <div class="icon">
+                        <i class="bi bi-flag-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-3">
+            <div class="stats-card warning-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3>Pending Review</h3>
+                        <div class="number">{{ pending_reports }}</div>
+                    </div>
+                    <div class="icon">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-3">
+            <div class="stats-card danger-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3>Confirmed Frauds</h3>
+                        <div class="number">{{ confirmed_frauds }}</div>
+                    </div>
+                    <div class="icon">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-3">
+            <div class="stats-card success-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3>Active Auctions</h3>
+                        <div class="number">{{ total_auctions }}</div>
+                    </div>
+                    <div class="icon">
+                        <i class="bi bi-hammer"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Distribution -->
+        <div class="col-4">
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h3>Risk Distribution</h3>
+                </div>
+                <div class="dashboard-card-body">
+                    <div class="chart-container">
+                        <canvas id="riskChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Trend -->
+        <div class="col-8">
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h3>Report Trend (Last 7 Days)</h3>
+                </div>
+                <div class="dashboard-card-body">
+                    <div class="chart-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- High Risk Auctions -->
+        <div class="col-6">
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h3>High Risk Auctions</h3>
+                    <form method="post" action="/fraud-admin/scan_auctions/">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="bi bi-search"></i> Scan All Auctions
+                        </button>
+                    </form>
+                </div>
+                <div class="dashboard-card-body">
+                    {% if high_risk_auctions %}
+                    <table class="dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>Auction</th>
+                                <th>Risk Score</th>
+                                <th>Reviewed</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for risk in high_risk_auctions %}
+                            <tr>
+                                <td>{{ risk.auction.title }}</td>
+                                <td>
+                                    <span style="color: {% if risk.score >= 0.7 %}#dc3545{% elif risk.score >= 0.3 %}#ffc107{% else %}#198754{% endif %}; font-weight: bold;">
+                                        {{ risk.score|floatformat:2 }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if risk.admin_reviewed %}
+                                    <span class="badge badge-success">Yes</span>
+                                    {% else %}
+                                    <span class="badge badge-secondary">No</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="/fraud-admin/fraud_detection/fraudriskscore/{{ risk.id }}/change/" class="btn btn-primary btn-sm">Review</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p>No high-risk auctions detected.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Reports -->
+        <div class="col-6">
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h3>Recent Reports</h3>
+                </div>
+                <div class="dashboard-card-body">
+                    {% if recent_reports %}
+                    <table class="dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>Auction</th>
+                                <th>Reported By</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for report in recent_reports %}
+                            <tr>
+                                <td>{{ report.auction.title }}</td>
+                                <td>{{ report.reported_by.username }}</td>
+                                <td>
+                                    {% if report.status == 'pending' %}
+                                    <span class="badge badge-warning">Pending</span>
+                                    {% elif report.status == 'investigating' %}
+                                    <span class="badge badge-primary">Investigating</span>
+                                    {% elif report.status == 'confirmed' %}
+                                    <span class="badge badge-danger">Confirmed & Deleted</span>
+                                    {% elif report.status == 'dismissed' %}
+                                    <span class="badge badge-secondary">Dismissed</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="/fraud-admin/fraud_detection/fraudreport/{{ report.id }}/change/" class="btn btn-primary btn-sm">Review</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p>No fraud reports yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Risk Distribution Chart
+        const riskCtx = document.getElementById('riskChart').getContext('2d');
+        const riskChart = new Chart(riskCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['High Risk', 'Medium Risk', 'Low Risk'],
+                datasets: [{
+                    data: [{{ high_risk }}, {{ medium_risk }}, {{ low_risk }}],
+                    backgroundColor: [
+                        '#dc3545',
+                        '#ffc107',
+                        '#198754'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Report Trend Chart
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        const trendChart = new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: [{% for item in report_trend %}'{{ item.date }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+                datasets: [{
+                    label: 'Fraud Reports',
+                    data: [{% for item in report_trend %}{{ item.count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                    backgroundColor: 'rgba(13, 110, 253, 0.2)',
+                    borderColor: 'rgba(13, 110, 253, 1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

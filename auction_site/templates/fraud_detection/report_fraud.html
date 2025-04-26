@@ -1,0 +1,45 @@
+{% extends 'auctions/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Report Fraud - {{ auction.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h2 class="mb-0">Report Fraudulent Auction</h2>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h5>Auction: {{ auction.title }}</h5>
+                    <p>Seller: {{ auction.created_by.username }}</p>
+                    <p>Current Price: {{ auction.current_price }}</p>
+                </div>
+                
+                <div class="alert alert-info">
+                    <p><strong>What is considered fraud?</strong></p>
+                    <ul>
+                        <li>Counterfeit or fake products</li>
+                        <li>Misrepresented item condition or features</li>
+                        <li>Stolen goods</li>
+                        <li>Prohibited items</li>
+                        <li>Seller with suspicious behavior</li>
+                    </ul>
+                    <p>Our team will review your report and take appropriate action.</p>
+                </div>
+                
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'auction_detail' auction_id=auction.id %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-danger">Submit Report</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

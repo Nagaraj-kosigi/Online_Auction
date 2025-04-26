@@ -1,0 +1,147 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+    :root {
+        --primary-color: #0d6efd;
+    }
+    
+    body.login {
+        background-color: #f8f9fa;
+    }
+    
+    .login #container {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        max-width: 400px;
+        margin: 100px auto;
+    }
+    
+    .login #header {
+        padding: 0;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .login #header h1 {
+        font-size: 1.5rem;
+        margin: 0;
+    }
+    
+    .login #header h1 a {
+        color: var(--primary-color);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .login #header h1 a i {
+        font-size: 2rem;
+        margin-right: 10px;
+    }
+    
+    .login .form-row {
+        margin-bottom: 20px;
+    }
+    
+    .login .form-row label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+    
+    .login .form-row input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+    }
+    
+    .login .submit-row {
+        margin-top: 30px;
+    }
+    
+    .login .submit-row input {
+        width: 100%;
+        padding: 10px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 500;
+    }
+    
+    .login .submit-row input:hover {
+        background-color: #0b5ed7;
+    }
+    
+    .login .errornote {
+        background-color: #f8d7da;
+        border: 1px solid #f5c2c7;
+        color: #842029;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} login{% endblock %}
+
+{% block usertools %}{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block nav-sidebar %}{% endblock %}
+
+{% block content_title %}{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+{% if 'fraud_admin' in request.path %}
+<div id="content-main">
+    {% if form.errors and not form.non_field_errors %}
+    <p class="errornote">
+        {% if form.errors.items|length == 1 %}{% translate "Please correct the error below." %}{% else %}{% translate "Please correct the errors below." %}{% endif %}
+    </p>
+    {% endif %}
+
+    {% if form.non_field_errors %}
+    {% for error in form.non_field_errors %}
+    <p class="errornote">
+        {{ error }}
+    </p>
+    {% endfor %}
+    {% endif %}
+
+    <div id="content-main">
+        <form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
+            <div class="form-row">
+                {{ form.username.errors }}
+                {{ form.username.label_tag }}
+                {{ form.username }}
+            </div>
+            <div class="form-row">
+                {{ form.password.errors }}
+                {{ form.password.label_tag }}
+                {{ form.password }}
+                <input type="hidden" name="next" value="{{ next }}">
+            </div>
+            <div class="submit-row">
+                <input type="submit" value="{% translate 'Log in' %}">
+            </div>
+        </form>
+    </div>
+</div>
+{% else %}
+{{ block.super }}
+{% endif %}
+{% endblock %}

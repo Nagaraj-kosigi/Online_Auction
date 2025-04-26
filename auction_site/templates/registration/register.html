@@ -1,0 +1,92 @@
+{% extends 'auctions/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Register - Online Auction{% endblock %}
+
+{% block extra_css %}
+<style>
+    .password-container {
+        position: relative;
+    }
+    .password-toggle {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">Register</h2>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <div class="d-grid gap-2 mt-3">
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </div>
+                </form>
+                <p class="mt-3 text-center">
+                    Already have an account? <a href="{% url 'login' %}">Login</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the password input fields
+        const passwordFields = [
+            document.getElementById('id_password1'),
+            document.getElementById('id_password2')
+        ];
+
+        passwordFields.forEach(function(passwordField) {
+            if (passwordField) {
+                // Create password container
+                const passwordContainer = document.createElement('div');
+                passwordContainer.className = 'password-container';
+
+                // Create toggle button
+                const toggleButton = document.createElement('span');
+                toggleButton.className = 'password-toggle';
+                toggleButton.innerHTML = '<i class="bi bi-eye"></i>';
+                toggleButton.title = 'Show password';
+
+                // Insert the container before the password field
+                passwordField.parentNode.insertBefore(passwordContainer, passwordField);
+
+                // Move the password field inside the container
+                passwordContainer.appendChild(passwordField);
+
+                // Add the toggle button to the container
+                passwordContainer.appendChild(toggleButton);
+
+                // Add event listener to toggle button
+                toggleButton.addEventListener('click', function() {
+                    if (passwordField.type === 'password') {
+                        passwordField.type = 'text';
+                        toggleButton.innerHTML = '<i class="bi bi-eye-slash"></i>';
+                        toggleButton.title = 'Hide password';
+                    } else {
+                        passwordField.type = 'password';
+                        toggleButton.innerHTML = '<i class="bi bi-eye"></i>';
+                        toggleButton.title = 'Show password';
+                    }
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

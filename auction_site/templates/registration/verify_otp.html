@@ -1,0 +1,49 @@
+{% extends 'auctions/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Verify Email - Online Auction{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">Verify Your Email</h2>
+            </div>
+            <div class="card-body">
+                <p class="mb-4">We've sent a 6-digit verification code to your email address ({{ email }}). Please check your inbox and enter the code below to verify your account.</p>
+
+
+
+                <div class="alert alert-info">
+                    <p>If you don't see the email in your inbox, please check your spam folder.</p>
+                    <p>The email should arrive within a few minutes. If you still don't receive it, you can request a new code below.</p>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <div class="d-grid gap-2 mt-3">
+                        <button type="submit" class="btn btn-primary">Verify Email</button>
+                    </div>
+                </form>
+
+                {% if resend %}
+                <div class="mt-3 text-center">
+                    <p>Didn't receive the code or it expired?</p>
+                    <a href="{% url 'resend_otp' %}" class="btn btn-outline-primary">Resend Code</a>
+                </div>
+                {% else %}
+                <p class="mt-3 text-center">
+                    Didn't receive the code? <a href="{% url 'resend_otp' %}">Resend Code</a>
+                </p>
+                {% endif %}
+
+                <p class="mt-3 text-center">
+                    <a href="{% url 'login' %}">Back to Login</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

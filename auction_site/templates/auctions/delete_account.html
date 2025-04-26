@@ -1,0 +1,38 @@
+{% extends 'auctions/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Delete Account - Online Auction{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h2 class="mb-0">Delete Account</h2>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <h4 class="alert-heading">Warning!</h4>
+                    <p>You are about to delete your account. This action cannot be undone.</p>
+                    <p>All your data, including your profile, auctions, and bids will be permanently deleted.</p>
+                </div>
+                
+                <p>To confirm, please enter your password:</p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'profile' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-danger">Delete My Account</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
