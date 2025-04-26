@@ -1,5 +1,10 @@
 django==5.0.2
-pillow==10.2.0
+pillow==11.2.1
 django-crispy-forms==2.1
 crispy-bootstrap5==2023.10
 djangorestframework==3.14.0
+numpy==2.2.5
+scikit-learn==1.6.1
+joblib==1.4.2
+scipy==1.15.2
+threadpoolctl==3.6.0
