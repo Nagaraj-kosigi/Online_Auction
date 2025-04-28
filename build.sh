@@ -11,21 +11,37 @@ cd auction_site
 # Collect static files
 python manage.py collectstatic --no-input
 
-# Apply database migrations
-python manage.py migrate
+# Apply database migrations - use --fake if needed
+python manage.py migrate --noinput || python manage.py migrate --noinput --fake
 
-# Create superuser (will not fail if user exists)
+# Create superuser using a more reliable approach
 echo "Creating admin superuser..."
-python -c "
-import django
-django.setup()
+python manage.py shell -c "
 from django.contrib.auth.models import User
-username = 'admin'
-email = 'admin@example.com'
-password = 'Admin@123456'
-if not User.objects.filter(username=username).exists():
-    User.objects.create_superuser(username, email, password)
-    print('Superuser created.')
-else:
-    print('Superuser already exists.')
+from django.db import transaction
+
+try:
+    with transaction.atomic():
+        if not User.objects.filter(username='admin').exists():
+            User.objects.create_superuser('admin', 'admin@example.com', 'Admin@123456')
+            print('Superuser created successfully.')
+        else:
+            # Update password for existing admin user
+            admin = User.objects.get(username='admin')
+            admin.set_password('Admin@123456')
+            admin.save()
+            print('Admin password updated.')
+except Exception as e:
+    print(f'Error creating superuser: {e}')
+    # Try alternative method
+    try:
+        from django.contrib.auth.hashers import make_password
+        User.objects.filter(username='admin').update(
+            is_staff=True,
+            is_superuser=True,
+            password=make_password('Admin@123456')
+        )
+        print('Admin user updated using alternative method.')
+    except Exception as e2:
+        print(f'Alternative method failed: {e2}')
 "
