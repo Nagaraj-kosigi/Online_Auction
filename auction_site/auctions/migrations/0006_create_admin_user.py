@@ -7,22 +7,19 @@ def create_admin_user(apps, schema_editor):
     """
     Create a default admin user during migration
     """
-    # Get the User model from the apps registry
-    User = apps.get_model('auth', 'User')
+    # We can't use the User model directly from apps.get_model
+    # because it doesn't include methods like set_password
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
 
     # Check if admin user exists
     if not User.objects.filter(username='admin').exists():
         # Create a superuser
-        user = User.objects.create(
+        User.objects.create_superuser(
             username='admin',
             email='admin@example.com',
-            is_staff=True,
-            is_superuser=True,
-            is_active=True
+            password='Admin@123456'
         )
-        # Set password (can't use create_superuser with apps.get_model)
-        user.set_password('Admin@123456')
-        user.save()
 
 
 class Migration(migrations.Migration):
