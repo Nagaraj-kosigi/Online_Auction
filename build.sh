@@ -8,6 +8,12 @@ pip install -r Requirements.txt
 # Navigate to the Django project directory
 cd auction_site
 
+# Create media directories
+mkdir -p media/auction_images
+mkdir -p media/profile_images
+mkdir -p media/fraud_evidence
+chmod -R 755 media
+
 # Collect static files
 python manage.py collectstatic --no-input
 

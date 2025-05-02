@@ -139,10 +139,19 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Ensure media files directory exists
 os.makedirs(MEDIA_ROOT, exist_ok=True)
+
+# For production environments like Render
+if not DEBUG:
+    # Configure media files to be served by whitenoise in production
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+    # Whitenoise can serve media files in production
+    WHITENOISE_ROOT = MEDIA_ROOT
 
 # Additional locations of static files
 STATICFILES_DIRS = [

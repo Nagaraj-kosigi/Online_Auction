@@ -19,6 +19,8 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from fraud_detection.admin_site import fraud_admin_site
+from django.views.static import serve
+import os
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,4 +28,14 @@ urlpatterns = [
     path('', include('auctions.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
     path('fraud/', include('fraud_detection.urls', namespace='fraud_detection')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+    # Explicitly serve media files (works in both development and production)
+    path('media/<path:path>', serve, {
+        'document_root': settings.MEDIA_ROOT,
+    }),
+]
+
+# Add static URL patterns for development only
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
