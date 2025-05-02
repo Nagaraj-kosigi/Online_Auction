@@ -12,6 +12,10 @@ from .storage import MediaStorage
 media_storage = MediaStorage(location=settings.MEDIA_ROOT)
 
 def get_default_end_date():
+    """
+    Default end date is 7 days from now, but users can customize this
+    when creating an auction (between 1 hour and 30 days)
+    """
     return timezone.now() + timedelta(days=7)
 
 class Category(models.Model):

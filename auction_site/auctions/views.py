@@ -9,7 +9,7 @@ from django.db.models import Max, Count, Q
 from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from .models import Auction, Bid, Category, UserProfile
+from .models import Auction, Bid, Category, UserProfile, get_default_end_date
 from .forms import AuctionForm, BidForm, UserProfileForm, CustomUserCreationForm, CustomPasswordResetForm, OTPVerificationForm, ChangePasswordForm
 from django.core.management.base import BaseCommand
 from auctions.models import Auction
@@ -339,13 +339,25 @@ def create_auction(request):
             auction.created_by = request.user
             auction.current_price = auction.starting_price
             auction.save()
-            messages.success(request, "Your auction has been created successfully!")
+
+            # Format end date for display in the success message
+            end_date_formatted = auction.end_date.strftime('%B %d, %Y at %I:%M %p')
+            messages.success(request, f"Your auction has been created successfully! It will end on {end_date_formatted}.")
             return redirect('auction_detail', auction_id=auction.id)
     else:
-        form = AuctionForm()
+        # Initialize form with default values
+        form = AuctionForm(initial={
+            'end_date': get_default_end_date().strftime('%Y-%m-%dT%H:%M'),
+        })
+
+    # Calculate min and max dates for template context
+    min_date = timezone.now() + timedelta(hours=1)
+    max_date = timezone.now() + timedelta(days=30)
 
     return render(request, 'auctions/create_auction.html', {
         'form': form,
+        'min_date': min_date.strftime('%Y-%m-%dT%H:%M'),
+        'max_date': max_date.strftime('%Y-%m-%dT%H:%M'),
     })
 
 @login_required
@@ -436,16 +448,48 @@ def edit_auction(request, auction_id):
     if not auction.is_active:
         return HttpResponseForbidden("You can't edit an inactive or ended auction.")
 
+    # Check if auction has bids - if so, restrict end date changes
+    has_bids = auction.bids.filter(status='active').exists()
+
     if request.method == 'POST':
         form = AuctionForm(request.POST, request.FILES, instance=auction)
+
+        # If auction has bids, only allow extending the end date, not shortening it
+        if has_bids and 'end_date' in form.cleaned_data:
+            new_end_date = form.cleaned_data['end_date']
+            if new_end_date < auction.end_date:
+                form.add_error('end_date', "You cannot shorten the auction duration once bids have been placed.")
+
         if form.is_valid():
-            form.save()
-            messages.success(request, "Auction updated successfully.")
+            updated_auction = form.save()
+
+            # Format end date for display in the success message
+            end_date_formatted = updated_auction.end_date.strftime('%B %d, %Y at %I:%M %p')
+            messages.success(request, f"Auction updated successfully. It will end on {end_date_formatted}.")
             return redirect('my_auctions')
     else:
-        form = AuctionForm(instance=auction)
+        # Format the datetime for the datetime-local input
+        initial_data = {}
+        if auction.end_date:
+            initial_data['end_date'] = auction.end_date.strftime('%Y-%m-%dT%H:%M')
 
-    return render(request, 'auctions/edit_auction.html', {'form': form, 'auction': auction})
+        form = AuctionForm(instance=auction, initial=initial_data)
+
+        # If auction has bids, add a note about end date restrictions
+        if has_bids:
+            form.fields['end_date'].help_text += " Note: You can only extend the end date, not shorten it, because bids have been placed."
+
+    # Calculate min and max dates for template context
+    min_date = timezone.now() + timedelta(hours=1)
+    max_date = timezone.now() + timedelta(days=30)
+
+    return render(request, 'auctions/edit_auction.html', {
+        'form': form,
+        'auction': auction,
+        'has_bids': has_bids,
+        'min_date': min_date.strftime('%Y-%m-%dT%H:%M'),
+        'max_date': max_date.strftime('%Y-%m-%dT%H:%M'),
+    })
 
 @require_POST
 @login_required
