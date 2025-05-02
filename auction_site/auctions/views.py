@@ -349,8 +349,14 @@ def create_auction(request):
                 # Log image details for debugging
                 logger.debug(f"Image upload: {image_file.name}, size: {image_file.size}, content_type: {image_file.content_type}")
 
-                # Ensure the image is properly saved
-                auction.image = image_file
+                # Validate image file
+                if image_file.content_type.startswith('image/'):
+                    # Ensure the image is properly saved
+                    auction.image = image_file
+                    logger.debug(f"Image validated and assigned to auction")
+                else:
+                    logger.warning(f"Invalid image type: {image_file.content_type}")
+                    messages.warning(request, "The uploaded file is not a valid image. Please upload a JPG, PNG, or GIF file.")
 
             # Save the auction
             auction.save()
@@ -503,8 +509,14 @@ def edit_auction(request, auction_id):
                 # Log image details for debugging
                 logger.debug(f"Image upload during edit: {image_file.name}, size: {image_file.size}, content_type: {image_file.content_type}")
 
-                # Ensure the image is properly saved
-                updated_auction.image = image_file
+                # Validate image file
+                if image_file.content_type.startswith('image/'):
+                    # Ensure the image is properly saved
+                    updated_auction.image = image_file
+                    logger.debug(f"Image validated and assigned to auction during edit")
+                else:
+                    logger.warning(f"Invalid image type during edit: {image_file.content_type}")
+                    messages.warning(request, "The uploaded file is not a valid image. Please upload a JPG, PNG, or GIF file.")
 
             # Save the auction
             updated_auction.save()

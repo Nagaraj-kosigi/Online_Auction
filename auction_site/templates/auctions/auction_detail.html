@@ -29,12 +29,18 @@
         </div>
         {% endif %}
 
-        <div class="card mb-4">
-            {% if auction.image %}
-            <img src="{{ auction.image.url }}" class="card-img-top" alt="{{ auction.title }}" onerror="this.onerror=null; this.src=''; this.alt='Image not available'; this.parentElement.innerHTML='<div class=\'bg-light text-center py-5\'>Image Not Available</div>';">
-            {% else %}
-            <div class="bg-light text-center py-5">No Image Available</div>
-            {% endif %}
+        <div class="card mb-4 auction-detail">
+            <div class="card-img-container">
+                {% if auction.image %}
+                <img src="{{ auction.image.url }}" class="card-img-top" alt="{{ auction.title }}"
+                    onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div class=\'no-image-placeholder\'><i class=\'bi bi-image\' style=\'font-size: 3rem;\'></i><p>Image Not Available</p></div>';">
+                {% else %}
+                <div class="no-image-placeholder">
+                    <i class="bi bi-image" style="font-size: 3rem;"></i>
+                    <p>No Image Available</p>
+                </div>
+                {% endif %}
+            </div>
             <div class="card-body">
                 <h5 class="card-title">Details</h5>
                 <p class="card-text">{{ auction.description|linebreaks }}</p>

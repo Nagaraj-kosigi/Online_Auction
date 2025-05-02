@@ -38,10 +38,33 @@ class MediaStorage(FileSystemStorage):
         if not name:
             return ''
 
-        # Get the URL from the parent class
-        url = super().url(name)
+        try:
+            # Get the URL from the parent class
+            url = super().url(name)
 
-        # Log the URL for debugging
-        logger.debug(f"Generated URL for {name}: {url}")
+            # Log the URL for debugging
+            logger.debug(f"Generated URL for {name}: {url}")
 
-        return url
+            # Fix URL for production environments
+            if not settings.DEBUG and not url.startswith('/media/'):
+                url = f'/media/{name}'
+                logger.debug(f"Fixed URL for production: {url}")
+
+            return url
+        except Exception as e:
+            logger.error(f"Error generating URL for {name}: {e}")
+            # Fallback to a basic URL
+            return f'/media/{name}'
+
+    def path(self, name):
+        """
+        Return the absolute path to the file.
+        """
+        try:
+            full_path = super().path(name)
+            logger.debug(f"Generated path for {name}: {full_path}")
+            return full_path
+        except Exception as e:
+            logger.error(f"Error generating path for {name}: {e}")
+            # Fallback to a basic path
+            return os.path.join(settings.MEDIA_ROOT, name)
