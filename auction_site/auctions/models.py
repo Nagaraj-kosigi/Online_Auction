@@ -3,8 +3,13 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import timedelta
 import uuid
+import os
 from django.conf import settings
 from django.urls import reverse
+from .storage import MediaStorage
+
+# Create custom storage instance
+media_storage = MediaStorage(location=settings.MEDIA_ROOT)
 
 def get_default_end_date():
     return timezone.now() + timedelta(days=7)
@@ -23,7 +28,7 @@ class Auction(models.Model):
     description = models.TextField()
     starting_price = models.DecimalField(max_digits=10, decimal_places=2)
     current_price = models.DecimalField(max_digits=10, decimal_places=2)
-    image = models.ImageField(upload_to='auction_images/', blank=True, null=True)
+    image = models.ImageField(upload_to='auction_images/', blank=True, null=True, storage=media_storage)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='auctions')
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='auctions')
     winner = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='won_auctions', null=True, blank=True)
@@ -71,7 +76,7 @@ class Bid(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     bio = models.TextField(blank=True)
-    avatar = models.ImageField(upload_to='profile_images/', blank=True, null=True)
+    avatar = models.ImageField(upload_to='profile_images/', blank=True, null=True, storage=media_storage)
     email_verified = models.BooleanField(default=False)
     email_verification_otp = models.CharField(max_length=6, null=True, blank=True)
     otp_expiry = models.DateTimeField(null=True, blank=True)

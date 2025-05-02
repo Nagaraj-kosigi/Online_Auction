@@ -141,6 +141,14 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Ensure media files directory exists
+os.makedirs(MEDIA_ROOT, exist_ok=True)
+
+# Additional locations of static files
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
 LOGIN_REDIRECT_URL = '/'
 
 # Email Configuration
@@ -163,3 +171,10 @@ AUTHENTICATION_BACKENDS = [
     'auctions.backends.AdminRedirectBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+# Session Settings
+SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+SESSION_COOKIE_HTTPONLY = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Set to False to persist login between browser sessions
