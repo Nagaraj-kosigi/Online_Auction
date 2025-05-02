@@ -49,7 +49,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-9">
         {% if page_obj %}
         <div class="row row-cols-1 row-cols-md-3 g-4">
@@ -57,7 +57,7 @@
             <div class="col">
                 <div class="card h-100 auction-card">
                     {% if auction.image %}
-                    <img src="{{ auction.image.url }}" class="card-img-top" alt="{{ auction.title }}" style="height: 200px; object-fit: cover;">
+                    <img src="{{ auction.image.url }}" class="card-img-top" alt="{{ auction.title }}" style="height: 200px; object-fit: cover;" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div class=\'bg-light text-center py-5\'>Image Not Available</div>';">
                     {% else %}
                     <div class="bg-light text-center py-5">No Image</div>
                     {% endif %}
@@ -67,7 +67,7 @@
                         <p class="card-text"><strong>Current Bid:</strong> ${{ auction.current_price }}</p>
                         <p class="card-text"><strong>Bids:</strong> {{ auction.bid_count }}</p>
                         <p class="card-text">
-                            <strong>Time Left:</strong> 
+                            <strong>Time Left:</strong>
                             <span class="timer" data-end-date="{{ auction.end_date|date:'c' }}">Loading...</span>
                         </p>
                     </div>
@@ -78,7 +78,7 @@
             </div>
             {% endfor %}
         </div>
-        
+
         <!-- Pagination -->
         <nav aria-label="Page navigation" class="mt-4">
             <ul class="pagination justify-content-center">
@@ -90,11 +90,11 @@
                     <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">Previous</a>
                 </li>
                 {% endif %}
-                
+
                 <li class="page-item active">
                     <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
                 </li>
-                
+
                 {% if page_obj.has_next %}
                 <li class="page-item">
                     <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">Next</a>

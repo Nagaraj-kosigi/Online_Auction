@@ -1,8 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
-from django.utils import timezone
-from datetime import timedelta
 from .models import Auction, Bid, UserProfile
 
 class AuctionForm(forms.ModelForm):
@@ -10,47 +8,8 @@ class AuctionForm(forms.ModelForm):
         model = Auction
         fields = ['title', 'description', 'starting_price', 'image', 'category', 'end_date']
         widgets = {
-            'end_date': forms.DateTimeInput(
-                attrs={
-                    'type': 'datetime-local',
-                    'class': 'form-control',
-                }
-            ),
+            'end_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Set minimum end date to 1 hour from now
-        min_date = timezone.now() + timedelta(hours=1)
-        # Set maximum end date to 30 days from now
-        max_date = timezone.now() + timedelta(days=30)
-
-        # Format dates for datetime-local input
-        min_date_str = min_date.strftime('%Y-%m-%dT%H:%M')
-        max_date_str = max_date.strftime('%Y-%m-%dT%H:%M')
-
-        # Update widget attributes
-        self.fields['end_date'].widget.attrs.update({
-            'min': min_date_str,
-            'max': max_date_str,
-        })
-
-        # Add help text
-        self.fields['end_date'].help_text = 'Set when your auction will end (between 1 hour and 30 days from now)'
-
-    def clean_end_date(self):
-        end_date = self.cleaned_data.get('end_date')
-        now = timezone.now()
-
-        # Ensure end date is in the future (at least 1 hour)
-        min_end_date = now + timedelta(hours=1)
-        if end_date < min_end_date:
-            raise forms.ValidationError('End date must be at least 1 hour in the future.')
-
-        # Ensure end date is not too far in the future (max 30 days)
-        max_end_date = now + timedelta(days=30)
-        if end_date > max_end_date:
-            raise forms.ValidationError('End date cannot be more than 30 days in the future.')
 
 class BidForm(forms.ModelForm):
     class Meta:

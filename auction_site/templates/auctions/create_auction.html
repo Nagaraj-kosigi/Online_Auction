@@ -13,31 +13,7 @@
             <div class="card-body">
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-
-                    <!-- Title, Description, Price, Image, Category fields -->
-                    {% for field in form %}
-                        {% if field.name != 'end_date' %}
-                            {{ field|crispy }}
-                        {% endif %}
-                    {% endfor %}
-
-                    <!-- End Date field with custom help text -->
-                    <div class="mb-3">
-                        <label for="{{ form.end_date.id_for_label }}" class="form-label">End Date and Time</label>
-                        {{ form.end_date }}
-                        <div class="form-text">
-                            Set when your auction will end (between 1 hour and 30 days from now).
-                            <br>Default is 7 days from now.
-                        </div>
-                        {% if form.end_date.errors %}
-                            <div class="invalid-feedback d-block">
-                                {% for error in form.end_date.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-
+                    {{ form|crispy }}
                     <div class="d-grid gap-2 mt-3">
                         <button type="submit" class="btn btn-primary">Create Auction</button>
                         <a href="{% url 'index' %}" class="btn btn-secondary">Cancel</a>

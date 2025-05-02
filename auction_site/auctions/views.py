@@ -28,6 +28,7 @@ import uuid
 
 
 import random
+import logging
 from datetime import timedelta
 
 def generate_otp():
@@ -332,18 +333,48 @@ def auction_detail(request, auction_id):
 
 @login_required
 def create_auction(request):
+    # Set up logging
+    logger = logging.getLogger('auctions')
+
     if request.method == 'POST':
         form = AuctionForm(request.POST, request.FILES)
         if form.is_valid():
             auction = form.save(commit=False)
             auction.created_by = request.user
             auction.current_price = auction.starting_price
+
+            # Handle image upload
+            if 'image' in request.FILES:
+                image_file = request.FILES['image']
+                # Log image details for debugging
+                logger.debug(f"Image upload: {image_file.name}, size: {image_file.size}, content_type: {image_file.content_type}")
+
+                # Ensure the image is properly saved
+                auction.image = image_file
+
+            # Save the auction
             auction.save()
 
             # Format end date for display in the success message
             end_date_formatted = auction.end_date.strftime('%B %d, %Y at %I:%M %p')
-            messages.success(request, f"Your auction has been created successfully! It will end on {end_date_formatted}.")
+
+            # Check if image was saved correctly
+            if auction.image:
+                try:
+                    image_url = auction.image.url
+                    logger.debug(f"Image saved successfully. URL: {image_url}")
+                    messages.success(request, f"Your auction has been created successfully with image! It will end on {end_date_formatted}.")
+                except Exception as e:
+                    logger.error(f"Error getting image URL: {e}")
+                    messages.success(request, f"Your auction has been created successfully, but there might be an issue with the image. It will end on {end_date_formatted}.")
+            else:
+                logger.warning(f"No image was saved for auction {auction.id}")
+                messages.success(request, f"Your auction has been created successfully! It will end on {end_date_formatted}.")
+
             return redirect('auction_detail', auction_id=auction.id)
+        else:
+            # Log form errors
+            logger.warning(f"Form validation errors: {form.errors}")
     else:
         # Initialize form with default values
         form = AuctionForm(initial={
@@ -443,6 +474,9 @@ def end_expired_auctions():
 
 @login_required
 def edit_auction(request, auction_id):
+    # Set up logging
+    logger = logging.getLogger('auctions')
+
     auction = get_object_or_404(Auction, id=auction_id, created_by=request.user)
 
     if not auction.is_active:
@@ -461,11 +495,35 @@ def edit_auction(request, auction_id):
                 form.add_error('end_date', "You cannot shorten the auction duration once bids have been placed.")
 
         if form.is_valid():
-            updated_auction = form.save()
+            updated_auction = form.save(commit=False)
+
+            # Handle image upload
+            if 'image' in request.FILES:
+                image_file = request.FILES['image']
+                # Log image details for debugging
+                logger.debug(f"Image upload during edit: {image_file.name}, size: {image_file.size}, content_type: {image_file.content_type}")
+
+                # Ensure the image is properly saved
+                updated_auction.image = image_file
+
+            # Save the auction
+            updated_auction.save()
 
             # Format end date for display in the success message
             end_date_formatted = updated_auction.end_date.strftime('%B %d, %Y at %I:%M %p')
-            messages.success(request, f"Auction updated successfully. It will end on {end_date_formatted}.")
+
+            # Check if image was saved correctly
+            if updated_auction.image:
+                try:
+                    image_url = updated_auction.image.url
+                    logger.debug(f"Image saved successfully during edit. URL: {image_url}")
+                    messages.success(request, f"Auction updated successfully with image! It will end on {end_date_formatted}.")
+                except Exception as e:
+                    logger.error(f"Error getting image URL during edit: {e}")
+                    messages.success(request, f"Auction updated successfully, but there might be an issue with the image. It will end on {end_date_formatted}.")
+            else:
+                messages.success(request, f"Auction updated successfully! It will end on {end_date_formatted}.")
+
             return redirect('my_auctions')
     else:
         # Format the datetime for the datetime-local input

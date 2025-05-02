@@ -144,14 +144,69 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Ensure media files directory exists
 os.makedirs(MEDIA_ROOT, exist_ok=True)
 
+# Create subdirectories for different types of uploads
+os.makedirs(os.path.join(MEDIA_ROOT, 'auction_images'), exist_ok=True)
+os.makedirs(os.path.join(MEDIA_ROOT, 'profile_images'), exist_ok=True)
+os.makedirs(os.path.join(MEDIA_ROOT, 'fraud_evidence'), exist_ok=True)
+
+# Set proper permissions for media directories
+try:
+    os.chmod(MEDIA_ROOT, 0o755)
+    os.chmod(os.path.join(MEDIA_ROOT, 'auction_images'), 0o755)
+    os.chmod(os.path.join(MEDIA_ROOT, 'profile_images'), 0o755)
+    os.chmod(os.path.join(MEDIA_ROOT, 'fraud_evidence'), 0o755)
+except Exception as e:
+    print(f"Could not set permissions on media directories: {e}")
+
+# Configure logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'debug.log'),
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'auctions': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
 # For production environments like Render
 if not DEBUG:
     # Configure media files to be served by whitenoise in production
-    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+    if 'whitenoise.middleware.WhiteNoiseMiddleware' not in MIDDLEWARE:
+        MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
     # Whitenoise can serve media files in production
     WHITENOISE_ROOT = MEDIA_ROOT
+
+    # Add CSRF trusted origins for Render
+    CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
 
 # Additional locations of static files
 STATICFILES_DIRS = [

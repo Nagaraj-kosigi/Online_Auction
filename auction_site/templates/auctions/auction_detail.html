@@ -31,7 +31,7 @@
 
         <div class="card mb-4">
             {% if auction.image %}
-            <img src="{{ auction.image.url }}" class="card-img-top" alt="{{ auction.title }}">
+            <img src="{{ auction.image.url }}" class="card-img-top" alt="{{ auction.title }}" onerror="this.onerror=null; this.src=''; this.alt='Image not available'; this.parentElement.innerHTML='<div class=\'bg-light text-center py-5\'>Image Not Available</div>';">
             {% else %}
             <div class="bg-light text-center py-5">No Image Available</div>
             {% endif %}
